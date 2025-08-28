@@ -34,7 +34,7 @@ export const signup = async (req, res) => {
       message: "Account created successfully",
     });
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
     res.json({ success: false, message: error.message });
   }
 };
@@ -60,7 +60,12 @@ export const login = async (req, res) => {
       message: "Login successfully",
     });
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
     res.json({ success: false, message: error.message });
   }
+};
+
+// Controller to check if user is authenticated
+export const checkAuth = (req, res) => {
+  res.json({ success: true, user: req.user });
 };
