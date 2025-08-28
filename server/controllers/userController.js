@@ -1,4 +1,3 @@
-import { response } from "express";
 import { generateToken } from "../lib/utils.js";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
@@ -33,6 +32,32 @@ export const signup = async (req, res) => {
       userData: newUser,
       token,
       message: "Account created successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+// Login existing user
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const userData = await User.findOne({ email });
+
+    const isPasswordCorrect = await bcrypt.compare(password, userData.password);
+
+    if (!isPasswordCorrect) {
+      return res.json({ success: false, message: "Invalid Credentials" });
+    }
+
+    const token = generateToken(userData._id);
+
+    res.json({
+      success: true,
+      userData,
+      token,
+      message: "Login successfully",
     });
   } catch (error) {
     console.log(error);
