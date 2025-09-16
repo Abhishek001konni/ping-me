@@ -1,10 +1,14 @@
 import express from "express";
+import session from "express-session";
+import passport from "passport";
 import "dotenv/config";
 import cors from "cors";
 import http from "http";
 import { connectDB } from "./config/db.js";
 import userRouter from "./routes/userRoutes.js";
 import messageRouter from "./routes/messageRoutes.js";
+import "./lib/passport.js";
+import googleAuthRouter from "./routes/googleAuthRoutes.js";
 import { Server } from "socket.io";
 
 const app = express();
@@ -39,9 +43,22 @@ io.on("connection", (socket) => {
 app.use(express.json({ limit: "4mb" }));
 app.use(cors());
 
+// Session and Passport Middleware
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: process.env.NODE_ENV === "production" },
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Routes
 app.use("/api/status", (req, res) => res.send("Server is running"));
 app.use("/api/auth", userRouter);
+app.use("/api/auth", googleAuthRouter);
 app.use("/api/messages", messageRouter);
 
 // MongoDb
